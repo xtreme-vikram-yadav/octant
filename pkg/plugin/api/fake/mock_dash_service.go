@@ -6,14 +6,12 @@ package fake
 
 import (
 	context "context"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
-	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-
 	action "github.com/vmware-tanzu/octant/pkg/action"
 	api "github.com/vmware-tanzu/octant/pkg/plugin/api"
 	store "github.com/vmware-tanzu/octant/pkg/store"
+	unstructured "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	reflect "reflect"
 )
 
 // MockService is a mock of Service interface
@@ -63,6 +61,20 @@ func (m *MockService) Create(arg0 context.Context, arg1 *unstructured.Unstructur
 func (mr *MockServiceMockRecorder) Create(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockService)(nil).Create), arg0, arg1)
+}
+
+// Delete mocks base method
+func (m *MockService) Delete(arg0 context.Context, arg1 store.Key) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockServiceMockRecorder) Delete(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), arg0, arg1)
 }
 
 // ForceFrontendUpdate mocks base method
