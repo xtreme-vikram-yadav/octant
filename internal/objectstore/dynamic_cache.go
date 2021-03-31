@@ -153,6 +153,8 @@ func (d *DynamicCache) Get(ctx context.Context, key store.Key) (object *unstruct
 	ctx, span := trace.StartSpan(ctx, "dynamicCache:Get")
 	defer span.End()
 
+	fmt.Printf("get: dynccache====== %v\n", key)
+
 	resourceLister, err := d.listerForResource(ctx, key)
 	if err != nil {
 		return nil, err
@@ -182,6 +184,9 @@ func (d *DynamicCache) Delete(ctx context.Context, key store.Key) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Printf("delete: dynccache gvr====== %v\n", gvr)
+	fmt.Printf("delete: dynccache store key====== %v\n", key)
 
 	deletePolicy := metav1.DeletePropagationForeground
 	deleteOptions := metav1.DeleteOptions{
@@ -273,6 +278,8 @@ func (d *DynamicCache) Create(ctx context.Context, object *unstructured.Unstruct
 	if err != nil {
 		return fmt.Errorf("key from object: %w", err)
 	}
+
+	fmt.Printf("create: dyncache store key======= %v\n", key)
 
 	gvr, err := d.gvrFromKey(ctx, key)
 	if err != nil {

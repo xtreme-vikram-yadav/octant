@@ -182,6 +182,25 @@ func handleAction(request *service.ActionRequest) error {
 		// Sending an alert needs a clientID from the request context
 		alert := action.CreateAlert(action.AlertTypeInfo, fmt.Sprintf("My client ID is: %s", request.ClientID), action.DefaultAlertExpiration)
 		request.DashboardClient.SendAlert(request.Context(), request.ClientID, alert)
+
+		// request.DashboardClient.Create(request.Context(), &unstructured.Unstructured{
+		// 	Object: map[string]interface{}{
+		// 		"apiVersion": "v1",
+		// 		"kind":       "Namespace",
+		// 		"metadata": map[string]interface{}{
+		// 			"name":      "foo",
+		// 			"namespace": "",
+		// 		},
+		// 	},
+		// })
+
+		request.DashboardClient.Get(request.Context(), store.Key{
+			APIVersion: "v1",
+			Kind:       "Pod",
+			Name:       <your-pod-name>,
+			Namespace:  "default",
+		})
+
 	}
 
 	return nil

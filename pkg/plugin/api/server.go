@@ -119,12 +119,18 @@ func (s *GRPCService) Update(ctx context.Context, object *unstructured.Unstructu
 
 func (s *GRPCService) Create(ctx context.Context, object *unstructured.Unstructured) error {
 	ctx = extractObjectStoreMetadata(ctx)
-	return s.ObjectStore.Create(ctx, object)
+	err := s.ObjectStore.Create(ctx, object)
+
+	fmt.Printf("create service: error= %v\n", err)
+	return err
 }
 
 func (s *GRPCService) Delete(ctx context.Context, key store.Key) error {
 	ctx = extractObjectStoreMetadata(ctx)
-	return s.ObjectStore.Delete(ctx, key)
+	err := s.ObjectStore.Delete(ctx, key)
+
+	fmt.Printf("create service: error= %v\n", err)
+	return err
 }
 
 // PortForward creates a port forward.
