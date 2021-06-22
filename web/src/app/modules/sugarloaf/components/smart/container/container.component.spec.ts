@@ -39,6 +39,11 @@ import { windowProvider, WindowToken } from '../../../../../window';
 import { SharedModule } from 'src/app/modules/shared/shared.module';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-ngx';
 import { ApplyYAMLComponent } from '../apply-yaml/apply-yaml.component';
+import { HistoryService } from '../../../../shared/services/history/history.service';
+import { HistoryServiceMock } from '../../../../shared/services/history/mock';
+import { before } from 'lodash';
+import { DropdownView } from 'src/app/modules/shared/models/content';
+import { delay } from 'rxjs/operators';
 
 describe('AppComponent', () => {
   let component: ContainerComponent;
@@ -48,6 +53,7 @@ describe('AppComponent', () => {
     waitForAsync(() => {
       TestBed.configureTestingModule({
         providers: [
+          { provide: HistoryService, useClass: HistoryServiceMock },
           { provide: WebsocketService, useClass: WebsocketServiceMock },
           { provide: WindowToken, useFactory: windowProvider },
           { provide: window, useValue: ClarityIcons },
@@ -107,5 +113,78 @@ describe('AppComponent', () => {
         expect(websocketService.isOpen).toBeTruthy();
       }
     ));
+  });
+
+  xdescribe('with history updates', () => {
+    let historyService;
+
+    beforeEach(() => {
+      historyService = TestBed.inject(HistoryService);
+    });
+
+    it('shows a message when there is not history available', () => {
+      historyService.pushHistory([]);
+      const expectedConfig = {
+        metadata: {
+          type: 'dropdown',
+          title: [
+            {
+              metadata: { type: 'text' },
+              config: { value: 'history' },
+            },
+          ],
+        },
+        config: {
+          position: 'bottom-left',
+          type: 'icon',
+          action: null,
+          useSelection: true,
+          items: [
+            {
+              name: 'default',
+              type: 'text',
+              label: 'No History',
+            },
+          ],
+        },
+      } as DropdownView;
+
+      historyService.history.pipe(delay(2000)).subscribe(history => {
+        expect(expectedConfig).toEqual(component.historyDropdownConfig);
+      });
+    });
+
+    it('sets dropdown config for the received history', () => {
+      historyService.pushHistory([{ title: 'foo-title', path: 'foo-path' }]);
+      const expectedConfig = {
+        metadata: {
+          type: 'dropdown',
+          title: [
+            {
+              metadata: { type: 'text' },
+              config: { value: 'history' },
+            },
+          ],
+        },
+        config: {
+          position: 'bottom-left',
+          type: 'icon',
+          action: null,
+          useSelection: true,
+          items: [
+            {
+              name: 'foo-title',
+              type: 'link',
+              label: 'foo-title',
+              url: 'foo-path',
+            },
+          ],
+        },
+      } as DropdownView;
+
+      historyService.history.pipe(delay(2000)).subscribe(_ => {
+        expect(expectedConfig).toEqual(component.historyDropdownConfig);
+      });
+    });
   });
 });

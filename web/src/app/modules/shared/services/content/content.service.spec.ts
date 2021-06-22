@@ -20,12 +20,11 @@ import {
   Filter,
   LabelFilterService,
 } from '../label-filter/label-filter.service';
+import { Title } from '@angular/platform-browser';
 
 describe('ContentService', () => {
   let service: ContentService;
-  const mockRouter = {
-    navigate: jasmine.createSpy('navigate'),
-  };
+  const mockRouter = jasmine.createSpyObj('Router', ['navigate']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -39,6 +38,10 @@ describe('ContentService', () => {
         {
           provide: Router,
           useValue: mockRouter,
+        },
+        {
+          provide: Title,
+          useValue: jasmine.createSpyObj('Title', ['getTitle', 'setTitle']),
         },
       ],
     });
@@ -70,6 +73,68 @@ describe('ContentService', () => {
           currentPath: '/path',
         })
       );
+    });
+
+    it('updates the title with namespace', () => {
+      const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+      router.navigate.and.callFake(() => {
+        return new Promise(resolve => resolve(true));
+      });
+      const backendService = TestBed.inject(WebsocketService);
+      let newUpdate = Object.assign(
+        update,
+        { contentPath: '/newPath' },
+        {
+          content: {
+            viewComponents: [],
+            title: [{ config: { value: 'foo-title' } }],
+          },
+        }
+      );
+      backendService.triggerHandler(ContentUpdateMessage, newUpdate);
+
+      const titleServiceSpy = TestBed.inject(Title) as jasmine.SpyObj<Title>;
+      expect(titleServiceSpy.setTitle).toHaveBeenCalledOnceWith(
+        'Octant | foo-title | default'
+      );
+      service.title.subscribe(title => {
+        expect(title).toEqual({
+          namespace: 'default',
+          title: 'foo-title',
+          path: '/newPath',
+        });
+      });
+    });
+
+    it('updates the title without namespace', () => {
+      const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+      router.navigate.and.callFake(() => {
+        return new Promise(resolve => resolve(true));
+      });
+      const backendService = TestBed.inject(WebsocketService);
+      let newUpdate = Object.assign(
+        update,
+        { contentPath: '/new-path', namespace: '' },
+        {
+          content: {
+            viewComponents: [],
+            title: [{ config: { value: 'foo-title' } }],
+          },
+        }
+      );
+      backendService.triggerHandler(ContentUpdateMessage, newUpdate);
+
+      const titleServiceSpy = TestBed.inject(Title) as jasmine.SpyObj<Title>;
+      expect(titleServiceSpy.setTitle).toHaveBeenCalledOnceWith(
+        'Octant | foo-title'
+      );
+      service.title.subscribe(title => {
+        expect(title).toEqual({
+          namespace: '',
+          title: 'foo-title',
+          path: '/new-path',
+        });
+      });
     });
   });
 

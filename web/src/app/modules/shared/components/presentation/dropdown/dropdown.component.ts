@@ -100,7 +100,7 @@ export class DropdownComponent extends AbstractViewComponent<DropdownView> {
       });
     }
 
-    if (item.url && this.type === 'link') {
+    if (item.url && item.type === 'link') {
       setTimeout(() => {
         this.router.navigateByUrl(item.url);
       }, 0);

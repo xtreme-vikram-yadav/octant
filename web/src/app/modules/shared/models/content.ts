@@ -7,6 +7,12 @@ export interface ContentResponse {
   currentPath: string;
 }
 
+export interface NamespacedTitle {
+  namespace: string;
+  title: string;
+  path: string;
+}
+
 export interface Content {
   extensionComponent: ExtensionView;
   viewComponents: View[];
@@ -16,8 +22,14 @@ export interface Content {
 
 export interface Metadata {
   type: string;
-  title?: View[];
+  title?: View[] | ValueConfig[];
   accessor?: string;
+}
+
+export interface ValueConfig extends View {
+  config?: {
+    value: string;
+  };
 }
 
 export interface View {
